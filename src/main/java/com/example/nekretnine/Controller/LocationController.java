@@ -1,13 +1,17 @@
 package com.example.nekretnine.Controller;
 
+import com.example.nekretnine.Messages.CustomErrorType;
 import com.example.nekretnine.Model.Location;
 import com.example.nekretnine.Repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/locations")
@@ -28,5 +32,18 @@ public class LocationController {
             // You many decide to return HttpStatus.NOT_FOUND
         }
         return new ResponseEntity<Iterable<Location>>(locations, HttpStatus.OK);
+    }
+
+
+    // -------------------Retrieve One Location---------------------------------------------
+    @RequestMapping(method = RequestMethod.GET, value = "/{locationId}")
+    ResponseEntity<?> getLocation (@PathVariable Long locationId) {
+
+        Optional<Location> location = this.locationRepository.findById(locationId);
+        if (!location.isPresent()) {
+            return new ResponseEntity(new CustomErrorType("Location with id " + locationId
+                    + " not found"), HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Optional<Location>>(location, HttpStatus.OK);
     }
 }
