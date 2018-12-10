@@ -51,6 +51,6 @@ public class LocationController {
         locationRepository.save(location);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/locations/{id}").buildAndExpand(location.getId()).toUri());
-        return new ResponseEntity<String>(headers, HttpStatus.OK);
+        return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
 }

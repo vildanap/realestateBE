@@ -48,7 +48,13 @@
 			<artifactId>postgresql</artifactId>
 			<version>9.4-1206-jdbc42</version>
 		</dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.vaadin.external.google</groupId>
+			<artifactId>android-json</artifactId>
+			<version>RELEASE</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
