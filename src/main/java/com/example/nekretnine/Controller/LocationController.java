@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -53,4 +54,24 @@ public class LocationController {
         headers.setLocation(ucBuilder.path("/locations/{id}").buildAndExpand(location.getId()).toUri());
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
+
+    // -------------------Update Location---------------------------------------------
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateLocation(@PathVariable("id") long id, @Valid @RequestBody Location location) {
+
+        Optional<Location> currentLocation = locationRepository.findById(id);
+
+        if (!currentLocation.isPresent()) {
+            return new ResponseEntity(new CustomErrorType("Unable to update. Location with id " + id + " not found."),
+                    HttpStatus.NOT_FOUND);
+        }
+
+        currentLocation.get().setAddress(location.getAddress());
+        currentLocation.get().setSettlement(location.getSettlement());
+        currentLocation.get().setCity(location.getCity());
+
+        locationRepository.save(currentLocation.get());
+        return new ResponseEntity<Optional<Location>>(currentLocation, HttpStatus.OK);
+    }
+
 }
