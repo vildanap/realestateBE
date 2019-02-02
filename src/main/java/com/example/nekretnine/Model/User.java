@@ -105,5 +105,6 @@ public class User {
         this.telephone = telephone;
     }
 
+//TODO: Add part for favourite-> user and advert
 }
 
