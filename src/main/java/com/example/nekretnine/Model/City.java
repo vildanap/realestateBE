@@ -23,7 +23,6 @@ public class City {
     private String name;
 
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL)
-    @JsonIgnore
     private Set<Location> locations;
 
     public City(){} // JPA only
@@ -60,8 +59,8 @@ public class City {
         if (locations != null) {
             for (Location location : locations) {
                 result += String.format(
-                        "Location[id=%d, address='%s', settlement='%s']%n",
-                        location.getId(), location.getAddress(), location.getSettlement());
+                        "Location[id=%d, settlement='%s']%n",
+                        location.getId(), location.getSettlement());
             }
         }
 

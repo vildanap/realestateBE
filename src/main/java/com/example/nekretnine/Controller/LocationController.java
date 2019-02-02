@@ -66,7 +66,6 @@ public class LocationController {
                     HttpStatus.NOT_FOUND);
         }
 
-        currentLocation.get().setAddress(location.getAddress());
         currentLocation.get().setSettlement(location.getSettlement());
         currentLocation.get().setCity(location.getCity());
 

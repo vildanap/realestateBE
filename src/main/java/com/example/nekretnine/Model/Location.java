@@ -17,10 +17,6 @@ public class Location{
     @SequenceGenerator(name="location_generator", sequenceName = "location_seq", allocationSize=1)
     private long id;
 
-    @NotNull(message = "Address cannot be null")
-    @Size(min = 4, max = 200, message = "Address must be between 4 and 200 characters")
-    private String address;
-
     @NotNull(message = "Settlement cannot be null")
     @Size(min = 4, max = 200, message = "Settlement must be between 4 and 200 characters")
     private String settlement;
@@ -38,14 +34,6 @@ public class Location{
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public String getSettlement() {
