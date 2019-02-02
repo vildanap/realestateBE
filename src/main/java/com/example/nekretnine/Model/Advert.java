@@ -56,7 +56,7 @@ public class Advert {
 
     public String getTitle() { return title; }
 
-    public void seTitle(String title) { this.title = title; }
+    public void setTitle(String title) { this.title = title; }
 
     public String getDescription() { return description; }
 
