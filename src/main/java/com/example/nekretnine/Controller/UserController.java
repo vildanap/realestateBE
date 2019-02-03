@@ -24,8 +24,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     @Autowired
     RegisteredUserService registeredUserService;
+
     private final UserRepository userRepository;
     @Autowired
     public UserController(UserRepository userRepository) {
@@ -42,17 +44,18 @@ public class UserController {
         return new ResponseEntity<Optional<User>>(user, HttpStatus.OK);
     }
     @RequestMapping(value="/login", method=RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity login(@RequestBody final LoginUserForm loginUser) throws ServletException {
+    public ResponseEntity login(@RequestBody final User loginUser) throws ServletException {
+        System.out.println(" Login 222 pokusaj " );
         String u = registeredUserService.login(loginUser);
-        if (u != null) {
-            return ResponseEntity.ok(u);
+        if (!u.isEmpty()) {
+            return new ResponseEntity(HttpStatus.OK);
         }
         else
-            return ResponseEntity.badRequest().body("Username or password are not correct");
+            return new ResponseEntity (HttpStatus.BAD_REQUEST);
     }
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder) {
+        System.out.println(" Login pokusaj " );
         userRepository.save(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/users/{id}").buildAndExpand(user.getId()).toUri());

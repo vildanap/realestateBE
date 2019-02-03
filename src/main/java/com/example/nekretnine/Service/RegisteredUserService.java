@@ -15,7 +15,8 @@ public class RegisteredUserService {
     @Autowired
     private UserRepository userRepository;
 
-    public String login(LoginUserForm loginUser) throws ServletException {
+    public String login(User loginUser) throws ServletException {
+        System.out.println(loginUser.getUsername());
         if(loginUser.getUsername() == null || loginUser.getUsername().isEmpty())
             throw new ServletException("Username field cannot be empty");
         if(loginUser.getPassword() == null || loginUser.getUsername().isEmpty())
@@ -23,7 +24,7 @@ public class RegisteredUserService {
 
         try {
             List<User> user = userRepository.login(loginUser.getUsername(), loginUser.getPassword());
-            if(user!=null) return user.get(1).getUsername();
+            if(!user.isEmpty()) return user.get(0).getUsername();
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
