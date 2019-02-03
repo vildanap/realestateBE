@@ -4,10 +4,8 @@ import com.example.nekretnine.Messages.CustomErrorType;
 import com.example.nekretnine.Model.Advert;
 import com.example.nekretnine.Model.AdvertPhoto;
 import com.example.nekretnine.Model.Location;
-import com.example.nekretnine.Repository.AdvertPhotoRepository;
-import com.example.nekretnine.Repository.AdvertRepository;
-import com.example.nekretnine.Repository.LocationRepository;
-import com.example.nekretnine.Repository.UserRepository;
+import com.example.nekretnine.Model.UserAdvert;
+import com.example.nekretnine.Repository.*;
 import com.example.nekretnine.Service.FileService;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +19,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -30,6 +30,7 @@ public class AdvertController {
     private final AdvertPhotoRepository advertPhotoRepository;
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
+    private final UserAdvertRepository userAdvertRepository;
     private FileService fileService;
 
     @Autowired
@@ -37,13 +38,15 @@ public class AdvertController {
                             FileService fileService,
                             AdvertPhotoRepository advertPhotoRepository,
                             UserRepository userRepository,
-                            LocationRepository locationRepository
+                            LocationRepository locationRepository,
+                            UserAdvertRepository userAdvertRepository
     ) {
         this.fileService = fileService;
         this.advertRepository = advertRepository;
         this.advertPhotoRepository = advertPhotoRepository;
         this.userRepository = userRepository;
         this.locationRepository = locationRepository;
+        this.userAdvertRepository = userAdvertRepository;
     }
 
     // -------------------Retrieve All Adverts---------------------------------------------
@@ -109,4 +112,33 @@ public class AdvertController {
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
+    // -------------------Retrieve Favorite Adverts---------------------------------------------
+    @RequestMapping(method = RequestMethod.GET, value = "/favorite/{userId}")
+    public ResponseEntity<Iterable<Advert>> listAllFavoriteAdverts(@PathVariable Long userId) {
+        Iterable<UserAdvert> userAdverts = userAdvertRepository.findAllByUserId(userId);
+
+        List<Advert> adverts = new ArrayList<>();
+
+        for(UserAdvert userAdvert : userAdverts){
+            adverts.add(advertRepository.findById(userAdvert.getAdvertId()).get());
+        }
+
+        if (adverts.spliterator().getExactSizeIfKnown() < 1) {
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            // You many decide to return HttpStatus.NOT_FOUND
+        }
+        return new ResponseEntity<Iterable<Advert>>(adverts, HttpStatus.OK);
+    }
+
+    // -------------------Add favorite Advert --------------------------------------------------
+    @RequestMapping(method = RequestMethod.POST, value="/post/favorite/{userId}/{advertId}")
+    public ResponseEntity addFavoriteAdvert(@PathVariable Long userId, @PathVariable Long advertId) {
+        UserAdvert userAdvert = new UserAdvert();
+        userAdvert.setAdvertId(advertId);
+        userAdvert.setUserId(userId);
+
+        userAdvertRepository.save(userAdvert);
+
+        return new ResponseEntity(HttpStatus.CREATED);
+    }
 }
