@@ -1,5 +1,6 @@
 package com.example.nekretnine.Model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -14,7 +15,7 @@ import java.util.Set;
 public class Advert {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "advert_generator")
-    @SequenceGenerator(name="city_generator", sequenceName = "advert_seq", allocationSize=1)
+    @SequenceGenerator(name = "advert_generator", sequenceName = "advert_seq", allocationSize = 1)
     private long id;
 
     @NotNull(message = "Title cannot be null")
@@ -32,27 +33,29 @@ public class Advert {
     private String propertyType;
 
     @NotNull(message = "Price cannot be null")
-    private float price;
+    private double price;
 
     @NotNull(message = "Area cannot be null")
-    private float area;
+    private double area;
 
-    @JoinColumn(name = "location_id")
-    @ManyToOne
+    @JsonBackReference
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
-    @JoinColumn(name = "user_id")
-    @ManyToOne
+    @JsonBackReference
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @NotNull(message = "Address cannot be null")
     @Size(min = 4, max = 200, message = "Address must be between 4 and 200 characters")
     private String address;
 
-    private int viewsCount;
+    private long viewsCount;
 
     @NotNull(message = "Number of rooms cannot be null")
-    private int numberOfRooms;
+    private long numberOfRooms;
 
     public String getTitle() { return title; }
 
@@ -78,27 +81,27 @@ public class Advert {
 
     public void setPropertyType(String propertyType) { this.propertyType = propertyType; }
 
-    public int getViewsCount() { return viewsCount; }
+    public long getViewsCount() { return viewsCount; }
 
-    public void setViewsCount(int viewsCount) { this.viewsCount = viewsCount; }
+    public void setViewsCount(long viewsCount) { this.viewsCount = viewsCount; }
 
-    public int getNumberOfRooms() { return numberOfRooms; }
+    public long getNumberOfRooms() { return numberOfRooms; }
 
-    public void setNumberOfRooms(int numberOfRooms) { this.numberOfRooms = numberOfRooms; }
+    public void setNumberOfRooms(long numberOfRooms) { this.numberOfRooms = numberOfRooms; }
 
     public Location getLocation() { return location; }
 
-    public void setLocation(Location city) { this.location = location; }
+    public void setLocation(Location location) { this.location = location; }
 
     public User getUser() { return user; }
 
     public void setUser(User user) { this.user = user; }
 
-    public float getArea() { return area; }
+    public double getArea() { return area; }
 
-    public void setArea(float area) { this.area = area; }
+    public void setArea(double area) { this.area = area; }
 
-    public float getPrice() { return price; }
+    public double getPrice() { return price; }
 
-    public void setPrice(float price) { this.price = price; }
+    public void setPrice(double price) { this.price = price; }
 }

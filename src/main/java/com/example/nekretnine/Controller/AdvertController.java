@@ -3,8 +3,11 @@ package com.example.nekretnine.Controller;
 import com.example.nekretnine.Messages.CustomErrorType;
 import com.example.nekretnine.Model.Advert;
 import com.example.nekretnine.Model.AdvertPhoto;
+import com.example.nekretnine.Model.Location;
 import com.example.nekretnine.Repository.AdvertPhotoRepository;
 import com.example.nekretnine.Repository.AdvertRepository;
+import com.example.nekretnine.Repository.LocationRepository;
+import com.example.nekretnine.Repository.UserRepository;
 import com.example.nekretnine.Service.FileService;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,13 +28,22 @@ import java.util.Optional;
 public class AdvertController {
     private final AdvertRepository advertRepository;
     private final AdvertPhotoRepository advertPhotoRepository;
+    private final UserRepository userRepository;
+    private final LocationRepository locationRepository;
     private FileService fileService;
 
     @Autowired
-    public AdvertController(AdvertRepository advertRepository, FileService fileService, AdvertPhotoRepository advertPhotoRepository) {
+    public AdvertController(AdvertRepository advertRepository,
+                            FileService fileService,
+                            AdvertPhotoRepository advertPhotoRepository,
+                            UserRepository userRepository,
+                            LocationRepository locationRepository
+    ) {
         this.fileService = fileService;
         this.advertRepository = advertRepository;
         this.advertPhotoRepository = advertPhotoRepository;
+        this.userRepository = userRepository;
+        this.locationRepository = locationRepository;
     }
 
     // -------------------Retrieve All Adverts---------------------------------------------
@@ -61,21 +73,40 @@ public class AdvertController {
 
     // -------------------Create an Advert --------------------------------------------------
     @PostMapping("/post")
-    public ResponseEntity<Object> createAdvert(@RequestParam(value = "files", required = false) MultipartFile[] files,
+    public ResponseEntity createAdvert(@RequestParam(value = "files", required = false) MultipartFile[] files,
                                              @RequestParam("formDataJson") String formDataJson) throws IOException, JSONException {
         JSONObject jsonObject = new JSONObject(formDataJson);
         Advert advert = new Advert();
         AdvertPhoto advertPhoto = new AdvertPhoto();
+
+        //get advert data
         advert.setTitle(jsonObject.getString("title"));
-        //Advert savedAdvert = advertRepository.save(advert);
-        //hardcoded dok ne skontam dalje :P
-        advertPhoto.setAdvertId(1);
+        advert.setDescription(jsonObject.getString("description"));
+        advert.setAdvertType(jsonObject.getString("advertType"));
+        advert.setPropertyType(jsonObject.getString("propertyType"));
+        advert.setPrice(jsonObject.getDouble("price"));
+        advert.setArea(jsonObject.getDouble("area"));
+        advert.setAddress(jsonObject.getString("address"));
+        advert.setViewsCount(jsonObject.getInt("viewsCount"));
+        advert.setNumberOfRooms(jsonObject.getInt("numberOfRooms"));
+
+        long userId = jsonObject.getLong("userId");
+        long locationId = jsonObject.getLong("locationId");
+
+        advert.setUser(userRepository.findById(userId).get());
+        advert.setLocation(locationRepository.findById(locationId).get());
+
+        //save advert
+        Advert savedAdvert = advertRepository.save(advert);
+
+        advertPhoto.setAdvertId(savedAdvert.getId());
         for(MultipartFile uploadedFile : files) {
             long id = fileService.save(uploadedFile);
             advertPhoto.setFileId(id);
             advertPhotoRepository.save(advertPhoto);
         }
-        return ResponseEntity.noContent().build();
+
+        return new ResponseEntity(HttpStatus.CREATED);
     }
 
 }
