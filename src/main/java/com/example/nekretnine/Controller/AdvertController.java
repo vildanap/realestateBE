@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.ServletException;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -140,5 +141,22 @@ public class AdvertController {
         userAdvertRepository.save(userAdvert);
 
         return new ResponseEntity(HttpStatus.CREATED);
+    }
+
+    // -------------------Update Views Count---------------------------------------------
+    @RequestMapping(value = "/plusView/{advertId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateUser(@PathVariable("advertId") Long advertId) throws ServletException {
+
+        Advert advert = advertRepository.findById(advertId).get();
+
+        if (advert==null) {
+            return new ResponseEntity(new CustomErrorType("Unable to update. Advert with id " + advertId + " not found."),
+                    HttpStatus.NOT_FOUND);
+        }
+
+        advert.setViewsCount(advert.getViewsCount()+1);
+        advertRepository.save(advert);
+
+        return new ResponseEntity<Advert>(advert, HttpStatus.OK);
     }
 }
