@@ -32,4 +32,20 @@ public class RegisteredUserService {
         }
         return null;
     }
+
+    public User findByUsername(String username) throws ServletException {
+        System.out.println(username);
+
+        try {
+            List<User> user = userRepository.findByUsername(username);
+            if(!user.isEmpty()) {  System.out.println("lista");
+                return user.get(0);
+
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new ServletException("RegiseredUserService Login exception");
+        }
+        return null;
+    }
 }

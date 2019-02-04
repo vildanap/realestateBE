@@ -25,4 +25,10 @@ public class UserRepositoryCustomImpl implements  UserRepositoryCustom{
         System.out.println("rezultat:");
         return query.getResultList();
     }
+
+    public List<User> findByUsername(String username) {
+        Query query = entityManager.createNativeQuery("select * from user where username='" + username + "'",User.class);
+        System.out.println(query.getResultList().get(0));
+        return query.getResultList();
+    }
 }

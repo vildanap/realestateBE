@@ -43,6 +43,16 @@ public class UserController {
         }
         return new ResponseEntity<Optional<User>>(user, HttpStatus.OK);
     }
+    // -------------------Retrieve One User---------------------------------------------
+    @RequestMapping(method = RequestMethod.GET, value = "/{username}")
+    public ResponseEntity<?> findUser(@PathVariable String username) throws ServletException {
+        User user = this.registeredUserService.findByUsername(username);
+        if (user==null) {
+            return new ResponseEntity(new CustomErrorType("User with username " + username + " not found."),
+                    HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<User>(user, HttpStatus.OK);
+    }
     @RequestMapping(value="/login", method=RequestMethod.POST)
     public ResponseEntity login(@RequestBody final User loginUser) throws ServletException {
         System.out.println(" Login 222 pokusaj " );
@@ -62,22 +72,24 @@ public class UserController {
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
     // -------------------Update User---------------------------------------------
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUser(@PathVariable("id") long id, @Valid @RequestBody User user) {
+    @RequestMapping(value = "/{username}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateUser(@PathVariable("username") String username, @Valid @RequestBody User user) throws ServletException {
 
-        Optional<User> currentUser = userRepository.findById(id);
+        User editedUser = this.registeredUserService.findByUsername(username);
 
-        if (!currentUser.isPresent()) {
-            return new ResponseEntity(new CustomErrorType("Unable to update. User with id " + id + " not found."),
+        if (editedUser==null) {
+            return new ResponseEntity(new CustomErrorType("Unable to update. User with username " + username + " not found."),
                     HttpStatus.NOT_FOUND);
         }
 
-        currentUser.get().setPassword(user.getPassword());
-        currentUser.get().setUsername(user.getUsername());
-        currentUser.get().setEmail(user.getEmail());
-        currentUser.get().setTelephone(user.getTelephone());
+        editedUser.setFirstName(user.getFirstName());
+        editedUser.setLastName(user.getLastName());
+        editedUser.setPassword(user.getPassword());
+        editedUser.setUsername(user.getUsername());
+        editedUser.setEmail(user.getEmail());
+        editedUser.setTelephone(user.getTelephone());
 
-        userRepository.save(currentUser.get());
-        return new ResponseEntity<Optional<User>>(currentUser, HttpStatus.OK);
+        userRepository.save(editedUser);
+        return new ResponseEntity<User>(editedUser, HttpStatus.OK);
     }
 }
