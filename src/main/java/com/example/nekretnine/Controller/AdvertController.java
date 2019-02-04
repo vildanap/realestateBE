@@ -104,10 +104,13 @@ public class AdvertController {
         Advert savedAdvert = advertRepository.save(advert);
 
         advertPhoto.setAdvertId(savedAdvert.getId());
-        for(MultipartFile uploadedFile : files) {
-            long id = fileService.save(uploadedFile);
-            advertPhoto.setFileId(id);
-            advertPhotoRepository.save(advertPhoto);
+
+        if(files != null){
+            for(MultipartFile uploadedFile : files) {
+                long id = fileService.save(uploadedFile);
+                advertPhoto.setFileId(id);
+                advertPhotoRepository.save(advertPhoto);
+            }
         }
 
         return new ResponseEntity(HttpStatus.CREATED);
