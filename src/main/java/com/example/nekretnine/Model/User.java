@@ -9,6 +9,7 @@ import javax.validation.constraints.*;
 
 @Entity
 @JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class,property="@id", scope = User.class)
+@Table(name="user_")
 public class User {
 
     @Id

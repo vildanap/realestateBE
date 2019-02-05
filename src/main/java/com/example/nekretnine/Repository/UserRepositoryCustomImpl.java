@@ -20,14 +20,14 @@ public class UserRepositoryCustomImpl implements  UserRepositoryCustom{
 
 
     public List<User> login(String username, String password) {
-        Query query = entityManager.createNativeQuery("select * from user where username='" + username + "' and password='" + password
+        Query query = entityManager.createNativeQuery("select * from user_ where username='" + username + "' and password='" + password
                 + "'",User.class);
         System.out.println(query.getResultList().size());
         return query.getResultList();
     }
 
     public List<User> findByUsername(String username) {
-        Query query = entityManager.createNativeQuery("select * from user where username='" + username + "'",User.class);
+        Query query = entityManager.createNativeQuery("select * from user_ where username='" + username + "'",User.class);
         System.out.println(query.getResultList().get(0));
         return query.getResultList();
     }
