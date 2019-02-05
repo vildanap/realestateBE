@@ -54,11 +54,11 @@ public class UserController {
         return new ResponseEntity<User>(user, HttpStatus.OK);
     }
     @RequestMapping(value="/login", method=RequestMethod.POST)
-    public ResponseEntity login(@RequestBody final User loginUser) throws ServletException {
+    public ResponseEntity<?> login(@RequestBody final User loginUser) throws ServletException {
         System.out.println(" Login " );
-        String u = registeredUserService.login(loginUser);
+        User u = registeredUserService.login(loginUser);
         if (u!=null) {
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity(u,HttpStatus.OK);
         }
         else
             return new ResponseEntity (HttpStatus.BAD_REQUEST);
