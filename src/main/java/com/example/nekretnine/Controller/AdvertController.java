@@ -210,4 +210,20 @@ public class AdvertController {
 
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    // -------------------Delete advert---------------------------------------------
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{advertId}")
+    public ResponseEntity<?> delete(@PathVariable("advertId") Long advertId) {
+        Optional<Advert> selectedReview = advertRepository.findById(advertId);
+
+        if(!selectedReview.isPresent()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        //delete photos first
+        advertPhotoRepository.deleteByAdvertId(advertId);
+
+        //delete advert
+        advertRepository.deleteById(advertId);
+        return new ResponseEntity<Advert>(HttpStatus.NO_CONTENT);
+    }
 }
