@@ -55,9 +55,9 @@ public class UserController {
     }
     @RequestMapping(value="/login", method=RequestMethod.POST)
     public ResponseEntity login(@RequestBody final User loginUser) throws ServletException {
-        System.out.println(" Login 222 pokusaj " );
+        System.out.println(" Login " );
         String u = registeredUserService.login(loginUser);
-        if (!u.isEmpty()) {
+        if (u!=null) {
             return new ResponseEntity(HttpStatus.OK);
         }
         else
@@ -65,7 +65,7 @@ public class UserController {
     }
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder) {
-        System.out.println(" Login pokusaj " );
+        System.out.println(" Sign up " );
         userRepository.save(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/users/{id}").buildAndExpand(user.getId()).toUri());
