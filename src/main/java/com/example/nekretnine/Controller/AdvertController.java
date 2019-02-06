@@ -163,4 +163,68 @@ public class AdvertController {
 
         return new ResponseEntity<Advert>(advert, HttpStatus.OK);
     }
+
+    // -------------------Update Advert Basic Info---------------------------------------------
+    @RequestMapping(value = "/{advertId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateAdvert(@PathVariable("advertId") Long advertId, @RequestBody Advert editedAdvert) throws ServletException {
+
+        Advert advert = advertRepository.findById(advertId).get();
+
+        if (advert==null) {
+            return new ResponseEntity(new CustomErrorType("Unable to update. Advert with id " + advertId + " not found."),
+                    HttpStatus.NOT_FOUND);
+        }
+
+        advert.setTitle(editedAdvert.getTitle());
+        advert.setDescription(editedAdvert.getDescription());
+        advert.setAdvertType(editedAdvert.getAdvertType());
+        advert.setPropertyType(editedAdvert.getPropertyType());
+        advert.setPrice(editedAdvert.getPrice());
+        advert.setArea(editedAdvert.getArea());
+        advert.setAddress(editedAdvert.getAddress());
+        advert.setViewsCount(editedAdvert.getViewsCount());
+        advert.setNumberOfRooms(editedAdvert.getNumberOfRooms());
+        advert.setLocation(locationRepository.findById(editedAdvert.getLocation().getId()).get());
+        advertRepository.save(advert);
+
+        return new ResponseEntity<Advert>(advert, HttpStatus.OK);
+    }
+
+    // -------------------Update Advert Photos---------------------------------------------
+    @RequestMapping(value = "/updatePhotos/{advertId}", method = RequestMethod.PUT)
+    public ResponseEntity updateAdvertPhotos(@PathVariable("advertId") Long advertId, @RequestParam(value = "files") MultipartFile[] files) throws ServletException, IOException {
+
+        AdvertPhoto advertPhoto = new AdvertPhoto();
+        advertPhoto.setAdvertId(advertId);
+
+        if(files != null){
+            //remove all photos
+            advertPhotoRepository.deleteByAdvertId(advertId);
+
+            //add new ones
+            for(MultipartFile uploadedFile : files) {
+                long id = fileService.save(uploadedFile);
+                advertPhoto.setFileId(id);
+                advertPhotoRepository.save(advertPhoto);
+            }
+        }
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    // -------------------Delete advert---------------------------------------------
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{advertId}")
+    public ResponseEntity<?> delete(@PathVariable("advertId") Long advertId) {
+        Optional<Advert> selectedReview = advertRepository.findById(advertId);
+
+        if(!selectedReview.isPresent()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        //delete photos first
+        advertPhotoRepository.deleteByAdvertId(advertId);
+
+        //delete advert
+        advertRepository.deleteById(advertId);
+        return new ResponseEntity<Advert>(HttpStatus.NO_CONTENT);
+    }
 }
