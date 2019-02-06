@@ -9,8 +9,8 @@ import javax.persistence.*;
 @JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class,property="@id", scope = Advert.class)
 public class AdvertPhoto {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "advert_generator")
-    @SequenceGenerator(name="city_generator", sequenceName = "advert_seq", allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "advertphoto_generator")
+    @SequenceGenerator(name="advertphoto_generator", sequenceName = "advert_seq", allocationSize=1)
     private long id;
 
     private long advertId;

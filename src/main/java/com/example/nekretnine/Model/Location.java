@@ -1,6 +1,7 @@
 package com.example.nekretnine.Model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
@@ -23,6 +24,7 @@ public class Location{
 
     @JoinColumn(name = "city_id")
     @ManyToOne
+    //@JsonIgnore
     private City city;
 
     public Location() {

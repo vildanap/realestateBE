@@ -103,11 +103,12 @@ public class AdvertController {
         //save advert
         Advert savedAdvert = advertRepository.save(advert);
 
-        advertPhoto.setAdvertId(savedAdvert.getId());
 
         if(files != null){
             for(MultipartFile uploadedFile : files) {
                 long id = fileService.save(uploadedFile);
+                advertPhoto = new AdvertPhoto();
+                advertPhoto.setAdvertId(savedAdvert.getId());
                 advertPhoto.setFileId(id);
                 advertPhotoRepository.save(advertPhoto);
             }
@@ -120,7 +121,7 @@ public class AdvertController {
     @RequestMapping(method = RequestMethod.GET, value = "/favorite/{userId}")
     public ResponseEntity<Iterable<Advert>> listAllFavoriteAdverts(@PathVariable Long userId) {
         Iterable<UserAdvert> userAdverts = userAdvertRepository.findAllByUserId(userId);
-
+        System.out.println("Faourites");
         List<Advert> adverts = new ArrayList<>();
 
         for(UserAdvert userAdvert : userAdverts){
