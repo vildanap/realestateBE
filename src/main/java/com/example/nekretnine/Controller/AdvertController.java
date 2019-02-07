@@ -135,6 +135,26 @@ public class AdvertController {
         return new ResponseEntity<Iterable<Advert>>(adverts, HttpStatus.OK);
     }
 
+    // -------------------Get Adverts - Sale ---------------------------------------------
+    @RequestMapping(method = RequestMethod.GET, value = "/sale")
+    public ResponseEntity<Iterable<Advert>> listAllAdvertsForSale() {
+        Iterable<Advert> adverts = advertRepository.findAllByAdvertType("Sale");
+        if (adverts.spliterator().getExactSizeIfKnown() < 1) {
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<Iterable<Advert>>(adverts, HttpStatus.OK);
+    }
+
+    // -------------------Get Adverts - Sale ---------------------------------------------
+    @RequestMapping(method = RequestMethod.GET, value = "/rent")
+    public ResponseEntity<Iterable<Advert>> listAllAdvertsForRent() {
+        Iterable<Advert> adverts = advertRepository.findAllByAdvertType("Rent");
+        if (adverts.spliterator().getExactSizeIfKnown() < 1) {
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<Iterable<Advert>>(adverts, HttpStatus.OK);
+    }
+
     // -------------------Add favorite Advert --------------------------------------------------
     @RequestMapping(method = RequestMethod.POST, value="/post/favorite/{userId}/{advertId}")
     public ResponseEntity addFavoriteAdvert(@PathVariable Long userId, @PathVariable Long advertId) {
