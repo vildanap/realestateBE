@@ -145,7 +145,7 @@ public class AdvertController {
         return new ResponseEntity<Iterable<Advert>>(adverts, HttpStatus.OK);
     }
 
-    // -------------------Get Adverts - Sale ---------------------------------------------
+    // -------------------Get Adverts - Rent ---------------------------------------------
     @RequestMapping(method = RequestMethod.GET, value = "/rent")
     public ResponseEntity<Iterable<Advert>> listAllAdvertsForRent() {
         Iterable<Advert> adverts = advertRepository.findAllByAdvertType("Rent");
