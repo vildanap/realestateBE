@@ -92,4 +92,18 @@ public class UserController {
         userRepository.save(editedUser);
         return new ResponseEntity<User>(editedUser, HttpStatus.OK);
     }
+    // DELETE
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId)  {
+        System.out.println("Delete");
+        System.out.println(userId);
+        Optional<User> user = this.userRepository.findById(userId);
+        if (!user.isPresent()) {
+            return new ResponseEntity(new CustomErrorType("Unable to delete. User with id " + userId + " not found."),
+                    HttpStatus.NOT_FOUND);
+        }
+
+        this.userRepository.deleteById(userId);
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }
