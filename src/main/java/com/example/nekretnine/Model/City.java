@@ -10,7 +10,6 @@ import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Entity
-@JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class,property="@id", scope = City.class)
 public class City {
 
     @Id
@@ -51,7 +50,7 @@ public class City {
         this.locations = locations;
     }
 
-    @Override
+   /* @Override
     public String toString() {
         String result = String.format(
                 "City[id=%d, name='%s']%n",
@@ -65,5 +64,5 @@ public class City {
         }
 
         return result;
-    }
+    }*/
 }

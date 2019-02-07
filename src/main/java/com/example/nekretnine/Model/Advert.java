@@ -11,7 +11,6 @@ import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Entity
-@JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class,property="@id", scope = Advert.class)
 public class Advert {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "advert_generator")

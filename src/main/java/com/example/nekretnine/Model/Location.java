@@ -10,7 +10,6 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
-@JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class,property="@id", scope = Location.class)
 public class Location{
 
     @Id
@@ -24,7 +23,7 @@ public class Location{
 
     @JoinColumn(name = "city_id")
     @ManyToOne
-    //@JsonIgnore
+    @JsonIgnore
     private City city;
 
     public Location() {

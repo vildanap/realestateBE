@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import javax.persistence.*;
 
 @Entity
-@JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class,property="@id", scope = Advert.class)
 public class AdvertPhoto {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "advertphoto_generator")
