@@ -1,12 +1,12 @@
 package com.example.nekretnine.Controller;
 
 import com.example.nekretnine.Messages.CustomErrorType;
-import com.example.nekretnine.Model.Advert;
-import com.example.nekretnine.Model.AdvertPhoto;
-import com.example.nekretnine.Model.Location;
-import com.example.nekretnine.Model.UserAdvert;
+import com.example.nekretnine.Model.*;
 import com.example.nekretnine.Repository.*;
 import com.example.nekretnine.Service.FileService;
+import com.example.nekretnine.Service.LocationService;
+import com.example.nekretnine.Service.RegisteredUserService;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/adverts")
 public class AdvertController {
+    @Autowired
+    RegisteredUserService registeredUserService;
+    @Autowired
+    LocationService locationService;
     private final AdvertRepository advertRepository;
     private final AdvertPhotoRepository advertPhotoRepository;
     private final UserRepository userRepository;
@@ -78,7 +82,7 @@ public class AdvertController {
     // -------------------Create an Advert --------------------------------------------------
     @PostMapping("/post")
     public ResponseEntity createAdvert(@RequestParam(value = "files", required = false) MultipartFile[] files,
-                                             @RequestParam("formDataJson") String formDataJson) throws IOException, JSONException {
+                                             @RequestParam("formDataJson") String formDataJson) throws IOException, JSONException, ServletException {
         JSONObject jsonObject = new JSONObject(formDataJson);
         Advert advert = new Advert();
         AdvertPhoto advertPhoto = new AdvertPhoto();
@@ -95,10 +99,24 @@ public class AdvertController {
         advert.setNumberOfRooms(jsonObject.getInt("numberOfRooms"));
 
         long userId = jsonObject.getLong("userId");
-        long locationId = jsonObject.getLong("locationId");
+        String settlement = jsonObject.getString("location");
+        System.out.println(settlement);
 
-        advert.setUser(userRepository.findById(userId).get());
-        advert.setLocation(locationRepository.findById(locationId).get());
+        User user = registeredUserService.findById(userId);
+        if (user==null) {
+            return new ResponseEntity(new CustomErrorType("Unable to create advert. User with id " + userId + " not found."),
+                    HttpStatus.NOT_FOUND);
+        }
+        else{
+        advert.setUser(user);}
+
+        Location location = locationService.findBySettlement(settlement);
+        if (location==null) {
+            return new ResponseEntity(new CustomErrorType("Unable to create advert. Settlement with name " + settlement + " not found."),
+                    HttpStatus.NOT_FOUND);
+        }
+        else{
+            advert.setLocation(location);}
 
         //save advert
         Advert savedAdvert = advertRepository.save(advert);

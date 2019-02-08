@@ -31,4 +31,11 @@ public class UserRepositoryCustomImpl implements  UserRepositoryCustom{
         System.out.println(query.getResultList().get(0).toString());
         return query.getResultList();
     }
+
+    public List<User> findUserById (Long id){
+        Query query = entityManager.createNativeQuery("select * from user_ where id="+ id,User.class);
+        System.out.println(query.getResultList().get(0).toString());
+        return query.getResultList();
+}
+
 }

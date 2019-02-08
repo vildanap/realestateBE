@@ -48,4 +48,18 @@ public class RegisteredUserService {
         }
         return null;
     }
+
+    public User findById (Long id) throws ServletException{
+        System.out.println(id);
+        try {
+            List<User> user = userRepository.findUserById(id);
+            if(!user.isEmpty()) {  System.out.println("lista");
+                return user.get(0);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new ServletException("RegisteredUserService find by id exception");
+        }
+        return null;
+    }
 }
