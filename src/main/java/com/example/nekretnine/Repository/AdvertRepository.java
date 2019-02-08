@@ -10,4 +10,6 @@ import java.util.List;
 
 public interface AdvertRepository extends JpaRepository<Advert, Long> {
     Iterable<Advert> findAllByAdvertType(String advertType);
+
+    Iterable<Advert> findByUserId(long userId);
 }

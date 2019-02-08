@@ -78,6 +78,17 @@ public class AdvertController {
         return new ResponseEntity<Optional<Advert>>(advert, HttpStatus.OK);
     }
 
+    //Get users posted adverts
+    // -------------------Retrieve All Adverts---------------------------------------------
+    @RequestMapping(method = RequestMethod.GET, value = "/getPostedBy/{userId}")
+    public ResponseEntity<Iterable<Advert>> listAllpostedByUserAdverts(@PathVariable("userId") long userId) {
+        Iterable<Advert> adverts = this.advertRepository.findByUserId(userId);
+        if (adverts.spliterator().getExactSizeIfKnown() < 1) {
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            // You many decide to return HttpStatus.NOT_FOUND
+        }
+        return new ResponseEntity<Iterable<Advert>>(adverts, HttpStatus.OK);
+    }
 
     // -------------------Create an Advert --------------------------------------------------
     @PostMapping("/post")
@@ -265,4 +276,5 @@ public class AdvertController {
         advertRepository.deleteById(advertId);
         return new ResponseEntity<Advert>(HttpStatus.NO_CONTENT);
     }
+
 }
