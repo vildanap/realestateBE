@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface UserAdvertRepository extends JpaRepository<UserAdvert, Long> {
     List<UserAdvert> findAllByUserId(Long userId);
+    Long countUserAdvertByUserId(long userId);
 }

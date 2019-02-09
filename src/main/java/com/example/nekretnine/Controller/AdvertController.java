@@ -321,6 +321,17 @@ public class AdvertController {
         return new ResponseEntity<Iterable<Advert>>(adverts, HttpStatus.OK);
     }
 
+    // -------------------Get User Information---------------------------------------------
+    @RequestMapping(method = RequestMethod.GET, value = "/userInfo/{userId}")
+    public ResponseEntity<UserAdvertInfo> getUserAdvertInformation(@PathVariable Long userId) {
+        UserAdvertInfo userAdvertInfo = new UserAdvertInfo();
+
+        userAdvertInfo.setNumberOfAdverts(advertRepository.countAdvertByUserId(userId));
+        userAdvertInfo.setNumberOfAdvertViews(advertRepository.getSumOfAdvertViews(userId) != null ? advertRepository.getSumOfAdvertViews(userId) : 0);
+        userAdvertInfo.setNumberOfFavorites(userAdvertRepository.countUserAdvertByUserId(userId));
+
+        return new ResponseEntity<UserAdvertInfo>(userAdvertInfo, HttpStatus.OK);
+    }
 
     public Advert getAdvertFromDataJson(String formDataJson) throws JSONException {
         JSONObject jsonObject = new JSONObject(formDataJson);
