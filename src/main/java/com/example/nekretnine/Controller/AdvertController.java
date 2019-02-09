@@ -69,7 +69,7 @@ public class AdvertController {
 
     // -------------------Retrieve One Advert---------------------------------------------
     @RequestMapping(method = RequestMethod.GET, value = "/{advertId}")
-    ResponseEntity<?> getAdvert (@PathVariable Long advertId) {
+    ResponseEntity<?> getAdvert(@PathVariable Long advertId) {
 
         Optional<Advert> advert = this.advertRepository.findById(advertId);
         if (!advert.isPresent()) {
@@ -94,10 +94,9 @@ public class AdvertController {
     // -------------------Create an Advert --------------------------------------------------
     @PostMapping("/post")
     public ResponseEntity createAdvert(@RequestParam(value = "files", required = false) MultipartFile[] files,
-                                             @RequestParam("formDataJson") String formDataJson) throws IOException, JSONException, ServletException {
+                                       @RequestParam("formDataJson") String formDataJson) throws IOException, JSONException, ServletException {
         JSONObject jsonObject = new JSONObject(formDataJson);
         Advert advert = new Advert();
-        AdvertPhoto advertPhoto = new AdvertPhoto();
 
         //get advert data
         advert.setTitle(jsonObject.getString("title"));
@@ -115,34 +114,25 @@ public class AdvertController {
         System.out.println(settlement);
 
         User user = registeredUserService.findById(userId);
-        if (user==null) {
+        if (user == null) {
             return new ResponseEntity(new CustomErrorType("Unable to create advert. User with id " + userId + " not found."),
                     HttpStatus.NOT_FOUND);
+        } else {
+            advert.setUser(user);
         }
-        else{
-        advert.setUser(user);}
 
         Location location = locationService.findBySettlement(settlement);
-        if (location==null) {
+        if (location == null) {
             return new ResponseEntity(new CustomErrorType("Unable to create advert. Settlement with name " + settlement + " not found."),
                     HttpStatus.NOT_FOUND);
+        } else {
+            advert.setLocation(location);
         }
-        else{
-            advert.setLocation(location);}
 
         //save advert
         Advert savedAdvert = advertRepository.save(advert);
 
-
-        if(files != null){
-            for(MultipartFile uploadedFile : files) {
-                long id = fileService.save(uploadedFile);
-                advertPhoto = new AdvertPhoto();
-                advertPhoto.setAdvertId(savedAdvert.getId());
-                advertPhoto.setFileId(id);
-                advertPhotoRepository.save(advertPhoto);
-            }
-        }
+        addAdvertPhotos(savedAdvert.getId(), files);
 
         return new ResponseEntity(HttpStatus.CREATED);
     }
@@ -154,7 +144,7 @@ public class AdvertController {
         System.out.println("Faourites");
         List<Advert> adverts = new ArrayList<>();
 
-        for(UserAdvert userAdvert : userAdverts){
+        for (UserAdvert userAdvert : userAdverts) {
             adverts.add(advertRepository.findById(userAdvert.getAdvertId()).get());
         }
 
@@ -186,7 +176,7 @@ public class AdvertController {
     }
 
     // -------------------Add favorite Advert --------------------------------------------------
-    @RequestMapping(method = RequestMethod.POST, value="/post/favorite/{userId}/{advertId}")
+    @RequestMapping(method = RequestMethod.POST, value = "/post/favorite/{userId}/{advertId}")
     public ResponseEntity addFavoriteAdvert(@PathVariable Long userId, @PathVariable Long advertId) {
         UserAdvert userAdvert = new UserAdvert();
         userAdvert.setAdvertId(advertId);
@@ -203,28 +193,62 @@ public class AdvertController {
 
         Advert advert = advertRepository.findById(advertId).get();
 
-        if (advert==null) {
+        if (advert == null) {
             return new ResponseEntity(new CustomErrorType("Unable to update. Advert with id " + advertId + " not found."),
                     HttpStatus.NOT_FOUND);
         }
 
-        advert.setViewsCount(advert.getViewsCount()+1);
+        advert.setViewsCount(advert.getViewsCount() + 1);
         advertRepository.save(advert);
 
         return new ResponseEntity<Advert>(advert, HttpStatus.OK);
     }
 
-    // -------------------Update Advert Basic Info---------------------------------------------
-    @RequestMapping(value = "/{advertId}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateAdvert(@PathVariable("advertId") Long advertId, @RequestBody Advert editedAdvert) throws ServletException {
+    // -------------------Edit Advert --------------------------------------------------
+    @PutMapping("/{advertId}")
+    public ResponseEntity editAdvert(@PathVariable("advertId") Long advertId, @RequestParam(value = "files", required = false) MultipartFile[] files,
+                                     @RequestParam("formDataJson") String formDataJson) throws IOException, JSONException, ServletException {
+        JSONObject jsonObject = new JSONObject(formDataJson);
+
+        Advert editedAdvert = getAdvertFromDataJson(formDataJson);
+
+        long userId = jsonObject.getLong("userId");
+        String settlement = jsonObject.getString("location");
+
+        User user = registeredUserService.findById(userId);
+        if (user==null) {
+            return new ResponseEntity(new CustomErrorType("Unable to update advert. User with id " + userId + " not found."),
+                    HttpStatus.NOT_FOUND);
+        }
+        else {
+            editedAdvert.setUser(user);
+        }
+
+        Location location = locationService.findBySettlement(settlement);
+        if (location==null) {
+            return new ResponseEntity(new CustomErrorType("Unable to update advert. Settlement with name " + settlement + " not found."),
+                    HttpStatus.NOT_FOUND);
+        }
+        else{
+            editedAdvert.setLocation(location);
+        }
 
         Advert advert = advertRepository.findById(advertId).get();
 
-        if (advert==null) {
-            return new ResponseEntity(new CustomErrorType("Unable to update. Advert with id " + advertId + " not found."),
+        if (advert == null) {
+            return new ResponseEntity(new CustomErrorType("Unable to update. Advert with id " + editedAdvert.getId() + " not found."),
                     HttpStatus.NOT_FOUND);
         }
 
+        //remove all photos
+        if(files != null){
+            advertPhotoRepository.deleteByAdvertId(advertId);
+        }
+
+        //add new photos
+        addAdvertPhotos(advertId, files);
+
+        //edit advert
         advert.setTitle(editedAdvert.getTitle());
         advert.setDescription(editedAdvert.getDescription());
         advert.setAdvertType(editedAdvert.getAdvertType());
@@ -234,32 +258,10 @@ public class AdvertController {
         advert.setAddress(editedAdvert.getAddress());
         advert.setViewsCount(editedAdvert.getViewsCount());
         advert.setNumberOfRooms(editedAdvert.getNumberOfRooms());
-        advert.setLocation(locationRepository.findById(editedAdvert.getLocation().getId()).get());
+        advert.setLocation(editedAdvert.getLocation());
         advertRepository.save(advert);
 
         return new ResponseEntity<Advert>(advert, HttpStatus.OK);
-    }
-
-    // -------------------Update Advert Photos---------------------------------------------
-    @RequestMapping(value = "/updatePhotos/{advertId}", method = RequestMethod.PUT)
-    public ResponseEntity updateAdvertPhotos(@PathVariable("advertId") Long advertId, @RequestParam(value = "files") MultipartFile[] files) throws ServletException, IOException {
-
-        AdvertPhoto advertPhoto = new AdvertPhoto();
-        advertPhoto.setAdvertId(advertId);
-
-        if(files != null){
-            //remove all photos
-            advertPhotoRepository.deleteByAdvertId(advertId);
-
-            //add new ones
-            for(MultipartFile uploadedFile : files) {
-                long id = fileService.save(uploadedFile);
-                advertPhoto.setFileId(id);
-                advertPhotoRepository.save(advertPhoto);
-            }
-        }
-
-        return new ResponseEntity(HttpStatus.OK);
     }
 
     // -------------------Delete advert---------------------------------------------
@@ -268,17 +270,16 @@ public class AdvertController {
         System.out.println(advertId);
         Optional<Advert> advert = advertRepository.findById(advertId);
 
-        if(!advert.isPresent()) {
+        if (!advert.isPresent()) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
-        else{
-        //delete photos first
-        advertPhotoRepository.deleteByAdvertId(advertId);
+        } else {
+            //delete photos first
+            advertPhotoRepository.deleteByAdvertId(advertId);
 
-        //delete advert
-        advertRepository.deleteById(advertId);
-        return new ResponseEntity<Advert>(HttpStatus.OK);
-    }
+            //delete advert
+            advertRepository.deleteById(advertId);
+            return new ResponseEntity<Advert>(HttpStatus.OK);
+        }
 
     }
 
@@ -287,25 +288,20 @@ public class AdvertController {
     public ResponseEntity<Iterable<Advert>> searchAdverts(@RequestBody SearchAdvert searchAdvert) {
         Iterable<Advert> adverts;
 
-        if(searchAdvert.getNumberOfRooms() != 0){
-            if(searchAdvert.getAdvertType() == 1){
+        if (searchAdvert.getNumberOfRooms() != 0) {
+            if (searchAdvert.getAdvertType() == 1) {
                 adverts = advertRepository.findAllByAdvertTypeAndLocationIdAndNumberOfRooms("Rent", searchAdvert.getLocationId(), searchAdvert.getNumberOfRooms());
-            }
-            else if(searchAdvert.getAdvertType() == 2){
+            } else if (searchAdvert.getAdvertType() == 2) {
                 adverts = advertRepository.findAllByAdvertTypeAndLocationIdAndNumberOfRooms("Sale", searchAdvert.getLocationId(), searchAdvert.getNumberOfRooms());
-            }
-            else{
+            } else {
                 adverts = advertRepository.findAllByLocationIdAndNumberOfRooms(searchAdvert.getLocationId(), searchAdvert.getNumberOfRooms());
             }
-        }
-        else{
-            if(searchAdvert.getAdvertType() == 1){
+        } else {
+            if (searchAdvert.getAdvertType() == 1) {
                 adverts = advertRepository.findAllByAdvertTypeAndLocationId("Rent", searchAdvert.getLocationId());
-            }
-            else if(searchAdvert.getAdvertType() == 2){
+            } else if (searchAdvert.getAdvertType() == 2) {
                 adverts = advertRepository.findAllByAdvertTypeAndLocationId("Sale", searchAdvert.getLocationId());
-            }
-            else{
+            } else {
                 adverts = advertRepository.findAllByLocationId(searchAdvert.getLocationId());
             }
         }
@@ -325,4 +321,35 @@ public class AdvertController {
         return new ResponseEntity<Iterable<Advert>>(adverts, HttpStatus.OK);
     }
 
+
+    public Advert getAdvertFromDataJson(String formDataJson) throws JSONException {
+        JSONObject jsonObject = new JSONObject(formDataJson);
+        Advert advert = new Advert();
+
+        //get advert data
+        advert.setTitle(jsonObject.getString("title"));
+        advert.setDescription(jsonObject.getString("description"));
+        advert.setAdvertType(jsonObject.getString("advertType"));
+        advert.setPropertyType(jsonObject.getString("propertyType"));
+        advert.setPrice(jsonObject.getDouble("price"));
+        advert.setArea(jsonObject.getDouble("area"));
+        advert.setAddress(jsonObject.getString("address"));
+        advert.setViewsCount(jsonObject.getInt("viewsCount"));
+        advert.setNumberOfRooms(jsonObject.getInt("numberOfRooms"));
+
+        return advert;
+    }
+
+    public void addAdvertPhotos(long advertId, MultipartFile[] files) throws IOException {
+        AdvertPhoto advertPhoto = new AdvertPhoto();
+        if (files != null) {
+            for (MultipartFile uploadedFile : files) {
+                long id = fileService.save(uploadedFile);
+                advertPhoto = new AdvertPhoto();
+                advertPhoto.setAdvertId(advertId);
+                advertPhoto.setFileId(id);
+                advertPhotoRepository.save(advertPhoto);
+            }
+        }
+    }
 }
