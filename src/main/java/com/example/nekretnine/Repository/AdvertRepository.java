@@ -12,4 +12,12 @@ public interface AdvertRepository extends JpaRepository<Advert, Long> {
     Iterable<Advert> findAllByAdvertType(String advertType);
 
     Iterable<Advert> findByUserId(long userId);
+
+    Iterable<Advert> findAllByAdvertTypeAndLocationId(String advertType, long locationId);
+
+    Iterable<Advert> findAllByLocationId(long locationId);
+
+    Iterable<Advert> findAllByAdvertTypeAndLocationIdAndNumberOfRooms(String advertType, long locationId, long numberOfRooms);
+
+    Iterable<Advert> findAllByLocationIdAndNumberOfRooms(long locationId, long numberOfRooms);
 }

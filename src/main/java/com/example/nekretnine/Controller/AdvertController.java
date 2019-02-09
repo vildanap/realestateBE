@@ -21,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -279,6 +280,49 @@ public class AdvertController {
         return new ResponseEntity<Advert>(HttpStatus.OK);
     }
 
+    }
+
+    // -------------------Search Adverts---------------------------------------------
+    @RequestMapping(method = RequestMethod.GET, value = "/search")
+    public ResponseEntity<Iterable<Advert>> searchAdverts(@RequestBody SearchAdvert searchAdvert) {
+        Iterable<Advert> adverts;
+
+        if(searchAdvert.getNumberOfRooms() != 0){
+            if(searchAdvert.getAdvertType() == 1){
+                adverts = advertRepository.findAllByAdvertTypeAndLocationIdAndNumberOfRooms("Rent", searchAdvert.getLocationId(), searchAdvert.getNumberOfRooms());
+            }
+            else if(searchAdvert.getAdvertType() == 2){
+                adverts = advertRepository.findAllByAdvertTypeAndLocationIdAndNumberOfRooms("Sale", searchAdvert.getLocationId(), searchAdvert.getNumberOfRooms());
+            }
+            else{
+                adverts = advertRepository.findAllByLocationIdAndNumberOfRooms(searchAdvert.getLocationId(), searchAdvert.getNumberOfRooms());
+            }
+        }
+        else{
+            if(searchAdvert.getAdvertType() == 1){
+                adverts = advertRepository.findAllByAdvertTypeAndLocationId("Rent", searchAdvert.getLocationId());
+            }
+            else if(searchAdvert.getAdvertType() == 2){
+                adverts = advertRepository.findAllByAdvertTypeAndLocationId("Sale", searchAdvert.getLocationId());
+            }
+            else{
+                adverts = advertRepository.findAllByLocationId(searchAdvert.getLocationId());
+            }
+        }
+
+        Iterator<Advert> it = adverts.iterator();
+        Advert advert;
+        while (it.hasNext()) {
+            advert = it.next();
+            if (advert.getPrice() < searchAdvert.getMinPrice() || advert.getPrice() > searchAdvert.getMaxPrice()) {
+                it.remove();
+            }
+        }
+
+        if (adverts.spliterator().getExactSizeIfKnown() < 1) {
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<Iterable<Advert>>(adverts, HttpStatus.OK);
     }
 
 }
