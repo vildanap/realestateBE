@@ -264,17 +264,21 @@ public class AdvertController {
     // -------------------Delete advert---------------------------------------------
     @RequestMapping(method = RequestMethod.DELETE, value = "/{advertId}")
     public ResponseEntity<?> delete(@PathVariable("advertId") Long advertId) {
-        Optional<Advert> selectedReview = advertRepository.findById(advertId);
+        System.out.println(advertId);
+        Optional<Advert> advert = advertRepository.findById(advertId);
 
-        if(!selectedReview.isPresent()) {
+        if(!advert.isPresent()) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
+        else{
         //delete photos first
         advertPhotoRepository.deleteByAdvertId(advertId);
 
         //delete advert
         advertRepository.deleteById(advertId);
-        return new ResponseEntity<Advert>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<Advert>(HttpStatus.OK);
+    }
+
     }
 
 }
