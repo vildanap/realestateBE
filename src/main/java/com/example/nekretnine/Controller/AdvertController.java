@@ -201,7 +201,7 @@ public class AdvertController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    // -------------------Remove favorite Advert --------------------------------------------------
+    // -------------------Check for favorite Advert --------------------------------------------------
     @RequestMapping(method = RequestMethod.GET, value = "/favorite/{userId}/{advertId}")
     public ResponseEntity checkIsItFavorite(@PathVariable Long userId, @PathVariable Long advertId) {
 
