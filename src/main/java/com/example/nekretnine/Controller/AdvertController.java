@@ -301,6 +301,9 @@ public class AdvertController {
             //delete photos first
             advertPhotoRepository.deleteByAdvertId(advertId);
 
+            //delete favourite
+            userAdvertRepository.deleteByAdvertId(advertId);
+
             //delete advert
             advertRepository.deleteById(advertId);
             return new ResponseEntity<Advert>(HttpStatus.OK);
