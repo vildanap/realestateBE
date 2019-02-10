@@ -7,6 +7,7 @@ import com.example.nekretnine.Service.FileService;
 import com.example.nekretnine.Service.LocationService;
 import com.example.nekretnine.Service.RegisteredUserService;
 
+import com.sun.net.httpserver.Authenticator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,9 +183,33 @@ public class AdvertController {
         userAdvert.setAdvertId(advertId);
         userAdvert.setUserId(userId);
 
-        userAdvertRepository.save(userAdvert);
+        if(!userAdvertRepository.existsUserAdvertByAdvertIdAndUserId(advertId, userId)) {
+            userAdvertRepository.save(userAdvert);
+        }
 
         return new ResponseEntity(HttpStatus.CREATED);
+    }
+
+    // -------------------Remove favorite Advert --------------------------------------------------
+    @RequestMapping(method = RequestMethod.DELETE, value = "/favorite/{userId}/{advertId}")
+    public ResponseEntity removeFavoriteAdvert(@PathVariable Long userId, @PathVariable Long advertId) {
+        UserAdvert userAdvert = userAdvertRepository.findByAdvertIdAndUserId(advertId, userId);
+        if(userAdvert != null) {
+            userAdvertRepository.deleteById(userAdvert.getId());
+        }
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    // -------------------Remove favorite Advert --------------------------------------------------
+    @RequestMapping(method = RequestMethod.GET, value = "/favorite/{userId}/{advertId}")
+    public ResponseEntity checkIsItFavorite(@PathVariable Long userId, @PathVariable Long advertId) {
+
+        if(userAdvertRepository.existsUserAdvertByAdvertIdAndUserId(advertId, userId)){
+            return new ResponseEntity(HttpStatus.OK);
+        }
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     // -------------------Update Views Count---------------------------------------------
