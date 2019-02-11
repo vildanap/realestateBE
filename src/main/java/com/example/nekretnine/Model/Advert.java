@@ -54,6 +54,7 @@ public class Advert {
     @NotNull(message = "Number of rooms cannot be null")
     private long numberOfRooms;
 
+    public Advert(){this.viewsCount=0;}
     public String getTitle() { return title; }
 
     public void setTitle(String title) { this.title = title; }

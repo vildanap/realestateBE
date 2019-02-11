@@ -116,7 +116,7 @@ public class UserController {
         Iterable<Advert> adverts = this.advertRepository.findByUserId(userId);
         for (Advert a:adverts)
             this.userAdvertRepository.deleteByAdvertId(a.getId());
-        
+
         this.advertRepository.deleteByUserId(userId);
         this.userRepository.deleteById(userId);
         return new ResponseEntity(HttpStatus.OK);
