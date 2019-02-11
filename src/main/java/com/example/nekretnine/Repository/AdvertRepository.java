@@ -26,4 +26,6 @@ public interface AdvertRepository extends JpaRepository<Advert, Long> {
 
     @Query("SELECT SUM(a.viewsCount) FROM Advert a WHERE a.user.id = :userId")
     Long getSumOfAdvertViews(@Param("userId") Long userId);
+
+    Long deleteByUserId(Long id);
 }

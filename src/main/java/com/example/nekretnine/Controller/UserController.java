@@ -1,10 +1,13 @@
 package com.example.nekretnine.Controller;
 
 import com.example.nekretnine.Messages.CustomErrorType;
+import com.example.nekretnine.Model.Advert;
 import com.example.nekretnine.Model.Location;
 import com.example.nekretnine.Model.LoginUserForm;
 import com.example.nekretnine.Model.User;
+import com.example.nekretnine.Repository.AdvertRepository;
 import com.example.nekretnine.Repository.LocationRepository;
+import com.example.nekretnine.Repository.UserAdvertRepository;
 import com.example.nekretnine.Repository.UserRepository;
 
 import com.example.nekretnine.Service.RegisteredUserService;
@@ -13,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -25,6 +29,11 @@ import java.util.Optional;
 @RequestMapping("/users")
 public class UserController {
 
+    @Autowired
+    AdvertRepository advertRepository;
+
+    @Autowired
+    UserAdvertRepository userAdvertRepository;
     @Autowired
     RegisteredUserService registeredUserService;
 
@@ -93,6 +102,7 @@ public class UserController {
         return new ResponseEntity<User>(editedUser, HttpStatus.OK);
     }
     // DELETE
+    @Transactional
     @RequestMapping(method = RequestMethod.DELETE, value = "/{userId}")
     public ResponseEntity<?> deleteUser(@PathVariable Long userId)  {
         System.out.println("Delete");
@@ -103,6 +113,11 @@ public class UserController {
                     HttpStatus.NOT_FOUND);
         }
 
+        Iterable<Advert> adverts = this.advertRepository.findByUserId(userId);
+        for (Advert a:adverts)
+            this.userAdvertRepository.deleteByAdvertId(a.getId());
+        
+        this.advertRepository.deleteByUserId(userId);
         this.userRepository.deleteById(userId);
         return new ResponseEntity(HttpStatus.OK);
     }

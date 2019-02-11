@@ -13,4 +13,5 @@ public interface UserAdvertRepository extends JpaRepository<UserAdvert, Long> {
     boolean existsUserAdvertByAdvertIdAndUserId(long advertId, long userId);
     UserAdvert findByAdvertIdAndUserId(long advertId, long userId);
     long deleteByAdvertId(long advertId);
+    long deleteByUserId(long userId);
 }

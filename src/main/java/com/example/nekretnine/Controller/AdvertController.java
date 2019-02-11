@@ -141,8 +141,10 @@ public class AdvertController {
     // -------------------Retrieve Favorite Adverts---------------------------------------------
     @RequestMapping(method = RequestMethod.GET, value = "/favorite/{userId}")
     public ResponseEntity<Iterable<Advert>> listAllFavoriteAdverts(@PathVariable Long userId) {
+
         Iterable<UserAdvert> userAdverts = userAdvertRepository.findAllByUserId(userId);
-        System.out.println("Faourites");
+
+        System.out.println(userId);
         List<Advert> adverts = new ArrayList<>();
 
         for (UserAdvert userAdvert : userAdverts) {
