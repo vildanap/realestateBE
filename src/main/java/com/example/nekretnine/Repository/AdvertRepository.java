@@ -22,6 +22,16 @@ public interface AdvertRepository extends JpaRepository<Advert, Long> {
 
     Iterable<Advert> findAllByLocationIdAndNumberOfRooms(long locationId, long numberOfRooms);
 
+    Iterable<Advert> findAllByAdvertTypeAndNumberOfRooms(String advertType, long numberOfRooms);
+
+    Iterable<Advert> findAllByNumberOfRooms(long numberOfRooms);
+
+    @Query("SELECT a FROM Advert a INNER JOIN Location loc ON a.location.id = loc.id WHERE a.advertType = :advertType AND loc.city.id = :cityId AND a.numberOfRooms = :numberOfRooms")
+    Iterable<Advert> findAllByAdvertTypeAndCityIdAndNumberOfRooms(@Param("advertType") String advertType, @Param("cityId") long cityId, @Param("numberOfRooms") long numberOfRooms);
+
+    @Query("SELECT a FROM Advert a INNER JOIN Location loc ON a.location.id = loc.id WHERE loc.city.id = :cityId AND a.numberOfRooms = :numberOfRooms")
+    Iterable<Advert> findAllByCityIdAndNumberOfRooms(@Param("cityId") long cityId, @Param("numberOfRooms") long numberOfRooms);
+
     Long countAdvertByUserId(long userId);
 
     @Query("SELECT SUM(a.viewsCount) FROM Advert a WHERE a.user.id = :userId")

@@ -314,11 +314,11 @@ public class AdvertController {
     }
 
     // -------------------Search Adverts---------------------------------------------
-    @RequestMapping(method = RequestMethod.GET, value = "/search")
+    @RequestMapping(method = RequestMethod.POST, value = "/search")
     public ResponseEntity<Iterable<Advert>> searchAdverts(@RequestBody SearchAdvert searchAdvert) {
         Iterable<Advert> adverts;
 
-        if (searchAdvert.getNumberOfRooms() != 0) {
+        if(searchAdvert.getLocationId() != 0){
             if (searchAdvert.getAdvertType() == 1) {
                 adverts = advertRepository.findAllByAdvertTypeAndLocationIdAndNumberOfRooms("Rent", searchAdvert.getLocationId(), searchAdvert.getNumberOfRooms());
             } else if (searchAdvert.getAdvertType() == 2) {
@@ -326,13 +326,23 @@ public class AdvertController {
             } else {
                 adverts = advertRepository.findAllByLocationIdAndNumberOfRooms(searchAdvert.getLocationId(), searchAdvert.getNumberOfRooms());
             }
-        } else {
+        }
+        else if(searchAdvert.getCityId() != 0 && searchAdvert.getLocationId() == 0){
             if (searchAdvert.getAdvertType() == 1) {
-                adverts = advertRepository.findAllByAdvertTypeAndLocationId("Rent", searchAdvert.getLocationId());
+                adverts = advertRepository.findAllByAdvertTypeAndCityIdAndNumberOfRooms("Rent", searchAdvert.getCityId(), searchAdvert.getNumberOfRooms());
             } else if (searchAdvert.getAdvertType() == 2) {
-                adverts = advertRepository.findAllByAdvertTypeAndLocationId("Sale", searchAdvert.getLocationId());
+                adverts = advertRepository.findAllByAdvertTypeAndCityIdAndNumberOfRooms("Sale", searchAdvert.getCityId(), searchAdvert.getNumberOfRooms());
             } else {
-                adverts = advertRepository.findAllByLocationId(searchAdvert.getLocationId());
+                adverts = advertRepository.findAllByCityIdAndNumberOfRooms(searchAdvert.getCityId(), searchAdvert.getNumberOfRooms());
+            }
+        }
+        else{
+            if (searchAdvert.getAdvertType() == 1) {
+                adverts = advertRepository.findAllByAdvertTypeAndNumberOfRooms("Rent", searchAdvert.getNumberOfRooms());
+            } else if (searchAdvert.getAdvertType() == 2) {
+                adverts = advertRepository.findAllByAdvertTypeAndNumberOfRooms("Sale", searchAdvert.getNumberOfRooms());
+            } else {
+                adverts = advertRepository.findAllByNumberOfRooms(searchAdvert.getNumberOfRooms());
             }
         }
 
