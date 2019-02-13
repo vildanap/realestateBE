@@ -1,6 +1,8 @@
 package com.example.nekretnine.Controller;
 
+import com.example.nekretnine.Model.AdvertPhoto;
 import com.example.nekretnine.Model.File;
+import com.example.nekretnine.Repository.AdvertPhotoRepository;
 import com.example.nekretnine.Service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -13,14 +15,17 @@ import org.json.JSONException;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @RestController
 public class FileController {
     private FileService fileService;
+    private AdvertPhotoRepository advertPhotoRepository;
 
     @Autowired
-    public void setFileService(FileService fileService) {
+    public void setFileService(FileService fileService, AdvertPhotoRepository advertPhotoRepository) {
         this.fileService = fileService;
+        this.advertPhotoRepository = advertPhotoRepository;
     }
 
     @PostMapping("/uploadFile")
@@ -49,5 +54,18 @@ public class FileController {
                         .body(resource);
 
 
+    }
+
+    //nazivi fajlova
+    @GetMapping("/advertFiles/{advertId}")
+    public ArrayList<String> getFiles(@PathVariable long advertId) {
+        ArrayList<AdvertPhoto> advertPhotos = advertPhotoRepository.findAllByAdvertId(advertId);
+
+        ArrayList<String> files = new ArrayList<String>();
+        for (AdvertPhoto ad: advertPhotos
+        ) {
+            files.add(fileService.getFile(ad.getFileId()).getFilename());
+        }
+        return files;
     }
 }

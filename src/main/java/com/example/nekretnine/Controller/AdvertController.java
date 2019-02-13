@@ -16,10 +16,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.ServletException;
 import javax.validation.Valid;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -400,6 +403,23 @@ public class AdvertController {
                 advertPhoto.setAdvertId(advertId);
                 advertPhoto.setFileId(id);
                 advertPhotoRepository.save(advertPhoto);
+
+                // Creating the directory to store file
+                //String rootPath = System.getProperty("catalina.home");
+                java.io.File dir = new java.io.File(java.io.File.separator + "tmpFiles");
+                if (!dir.exists())
+                    dir.mkdirs();
+
+                // Create the file on server
+                java.io.File serverFile = new java.io.File(dir.getAbsolutePath()+ java.io.File.separator + uploadedFile.getOriginalFilename());
+                System.out.println(uploadedFile.getOriginalFilename());
+                BufferedOutputStream stream = new BufferedOutputStream(
+                        new FileOutputStream(serverFile));
+                stream.write(uploadedFile.getBytes());
+                stream.close();
+                System.out.println("Server File Location="
+                        + serverFile.getAbsolutePath());
+
             }
         }
     }
