@@ -72,4 +72,24 @@ public class FileController {
         System.out.println(files.size());
         return files;
     }
+
+    //prvi fajl koji nadje od oglasa
+    @RequestMapping(method = RequestMethod.GET, value = "/image/{advertId}")
+    public ResponseEntity<ByteArrayResource> getFirstAdvertFile(@PathVariable Long advertId) {
+        AdvertPhoto advertPhoto = advertPhotoRepository.findFirstByAdvertId(advertId);
+        File file = new File();
+
+        file = fileService.getFile(advertPhoto.getFileId());
+        ByteArrayResource resource = new ByteArrayResource(file.getFile());
+        MediaType mediaType = MediaType.parseMediaType(file.getFiletype());
+        return ResponseEntity.ok()
+                .header("X-Content-Type-Options", "nosniff")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getFilename())
+                .header("Access-Control-Expose-Headers", "Content-Disposition")
+                .contentType(mediaType)
+                .contentLength(file.getFile().length) //
+                .body(resource);
+
+
+    }
 }

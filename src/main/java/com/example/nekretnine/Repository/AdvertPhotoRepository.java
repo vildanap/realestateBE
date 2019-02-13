@@ -12,4 +12,6 @@ public interface AdvertPhotoRepository extends JpaRepository<AdvertPhoto, Long> 
     long deleteByAdvertId(long advertId);
 
     ArrayList<AdvertPhoto> findAllByAdvertId(long advertId);
+    AdvertPhoto findFirstByAdvertId(Long advertId);
+
 }
