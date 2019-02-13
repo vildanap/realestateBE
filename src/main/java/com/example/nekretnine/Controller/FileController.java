@@ -59,13 +59,17 @@ public class FileController {
     //nazivi fajlova
     @GetMapping("/advertFiles/{advertId}")
     public ArrayList<String> getFiles(@PathVariable long advertId) {
+        System.out.println("Slikee");
         ArrayList<AdvertPhoto> advertPhotos = advertPhotoRepository.findAllByAdvertId(advertId);
 
         ArrayList<String> files = new ArrayList<String>();
         for (AdvertPhoto ad: advertPhotos
         ) {
             files.add(fileService.getFile(ad.getFileId()).getFilename());
+
+
         }
+        System.out.println(files.size());
         return files;
     }
 }
